@@ -1,0 +1,298 @@
+#!/bin/bash 
+
+# This is a interactive game that gives the details of the best and favourite player of the user from the selections
+
+# a and b store the value of the arguments
+a=$1
+b=$2
+# usage of these variables are in the functions as the initials
+c=0
+d=5
+
+# Store date
+now=$(date)
+
+# Validation for username and ID
+# Check for no arguments, proper username, proper id and arguments exactly to 2
+
+# Check if agruments are given or not
+if [[ !( $1 == "" && $2 == "") ]]
+then
+	# Check if user has passed 2 arguments
+	if [[ $# -eq 2 ]]
+	then
+		# Validation for username
+		if [[ $1 =~ ^[a-zA-Z] ]]
+		then
+			# Validation for ID
+			if [[ !( $2 =~ ^[0-9] ) ]]
+			then 
+			    echo -e "\t\t*****Please enter your ID after writing the username*****"
+			    echo -en "\n"
+			    exit
+			fi
+		else
+			echo -e "\t\t*****Please enter your username at first after writing the filename*****"
+			echo -en "\n"
+			exit
+		fi
+
+	elif [[ $# -lt 2 ]]; then
+		echo -e "\t\t*****Please enter both your username and ID*****"
+		echo -en "\n"
+		exit
+	else
+		echo -e "\t\t*****Please enter your username and ID only*****"
+		echo -en "\n"
+		exit
+	fi
+else
+	echo -e "\t*****Please enter your username and ID*****"
+	echo -e "\n"
+	exit
+fi
+
+
+# First function
+# Restricting to 5 attempts
+first() {
+	while [[ $c -lt 5 ]]
+	do
+		# Input secret key
+		read -s -p 'Please enter the key: ' pswd
+		echo -en "\n"
+
+		if [[ $pswd == 'saman' ]]
+		then
+			echo -e "\t \t---------->>Welcome $a<<---------- \n\t \t---------->>Your ID is $b<<----------"
+			echo -e "\tThe registered date and time is: $now"
+			echo -e "\n"
+			echo -e "\t\t--------------->>Begin<<---------------"
+			second
+		else 
+			echo "----->>Please enter the correct key<<-----"
+			# Beep sound
+			echo $'\a'
+			# Descreasing the number of attempts
+			d="$(( d - 1 ))"
+			echo "Attempts Remaining: $d"
+			if [[ d -eq 0 ]]
+			then
+				echo -e "You have made 5 wrong attempts.!!\nContact your administrator to get the key & Try Again!!!"
+				exit
+			fi
+		fi
+		# Increasing the number for while loop
+		c="$c+1"
+	done
+}
+
+
+
+# Second function
+# Choosing the best team
+second() {
+	echo -e "For the First Round, Find out which is the best cricket team?(Use the codes given)"
+	echo -e "Code \t Team Name"
+	echo "AUS------>Australia"
+	echo "BAN------>Bangladesh"
+	echo "NEP------>Nepal"
+	echo "IND------>India"
+	echo "ENG------>England"
+	echo -en "\n"
+	chooseTeam
+}
+
+chooseTeam()
+{
+	local team
+	# Loop until the user chooses NEP i.e.Nepal
+	until [[ $team == NEP ]]
+	do
+		read -p "Choose the best cricket team among them: " team
+		if [ $team == NEP ]
+		then
+			echo -e "\t *****Congratulations! you have chosen the correct answer*****"
+			echo -e "\t  Nepal has been in a brilliant side after the 2019 World Cup."
+			echo -e "\n"
+			echo -e "\t\tCongratulations!!! Now let's move to Round II"
+			third
+
+		elif [ $team == AUS ] || [ $team == BAN ] || [ $team == IND ] || [ $team == ENG ]
+		then
+			echo -e "\t \t*****Sorry! the team you have chosen was'nt the best team in 2019*****"
+			echo -en "\n"
+
+		else
+			echo -e "\t \t*****Please use the codes from the teams mentioned above*****"
+			echo -en "\n"
+		fi
+	done 
+}
+
+
+# Third function
+# Choosing three players
+# Usage of array to store the code of the players
+third()
+{
+	echo -e "For the Second Round, The Names of 5 star Players are listed below\n\t\tNOTE:\"You have to insert codes of 3 players\""
+	echo -e "Player Name \t Code"
+	echo "1) Paras Khadka-->PK"
+	echo "2) Virat Kohli--->VK"
+	echo "3) David Warner-->DW"
+	echo "4) Ben Stokes---->BS"
+	echo "5) Ross Taylor--->RT"
+	echo -e "\n"
+	playercodes
+
+}
+
+playercodes()
+{
+	until [[ $e = 1 ]] # Until the user inserts codes of three players
+	do
+		declare -a arrayplayers=("PK" "VK" "DW" "BS" "RT") # Declaring an array
+		
+		read -p "Choose the best cricket players among them:(Use Spaces to seperate them) " player1 player2 player3
+		
+		players=($player1 $player2 $player3) # store data to a variable
+		total=${#players[@]} # Count total inputs
+		
+		# Check if user has entered 3 player codes then only process further
+		if [[ total -eq 3 ]]
+		then
+			d=1
+			if [[ " ${arrayplayers[@]} " =~ " ${player1} " ]] 
+			then
+				if [[ " ${arrayplayers[@]} " =~ " ${player2} " ]]
+				then
+					if [[ " ${arrayplayers[@]} " =~ " ${player3} " ]]
+					then
+						echo -e "\n"
+						echo -e "\t \t*****Congratulations!!! Now let's move to another round*****"
+						# Here it is known that the user has entered name of 3 players
+						e=-1
+						echo "The Players that you have chosen are listed below:"
+						# calling fourth function
+						fourth
+					else
+						d=-1
+					fi
+				else
+					d=-1
+				fi
+			fi
+			# If the value of d changes at the middle, missing some code is known
+			if [[ $d -eq -1 ]]
+			then
+				echo -e "\t *****Please use the codes from the teams mentioned above*****"
+				echo -e "\t\t\t*****Try Again*****"
+				echo -e "\n"
+			fi
+		# Check if user has given input less than 3
+		elif [[ total -lt 3 ]]; then
+			#statements
+			echo -e "\t\t*****NOTE: You should enter the player code of three players*****"
+			echo -e "\n"
+			playercodes
+		else
+			echo -e "\t\t*****NOTE: You should enter the player code of three players only*****"
+			echo -e "\n"
+			playercodes
+		fi
+
+		# Check uppercasing
+		if [[ !( $player1 =~ ^[A-Z] ) || !( $player2 =~ ^[A-Z] ) ||  !( $player3 =~ ^[A-Z] ) ]]
+		then
+			echo -e "\t*****Please use uppercase letters for the codes!!!*****"
+			echo -en "\n"
+			playercodes
+		fi
+
+		# Check repetitions
+		if [ "$player1" == "$player2" -o "$player1" == "$player3" -o "$player2" == "$player3" ]
+		then
+			echo -e "\t\t*****Please do not repeat codes*****"
+			echo -e "\n"
+			playercodes
+		fi	
+	done
+}
+
+
+# Fourth function
+# Choosing a favourite player among 3 players
+fourth()
+{
+	PS3="Which one is your favourite player among these players? "
+	
+	select fav in $player1 $player2 $player3
+	do
+		case $fav in
+		PK)
+			echo -en "\n"
+			# Display file
+			cat paras_PK
+			echo -en "\n"
+			fifth
+		;;
+		VK)
+			echo -en "\n"
+			cat virat_VK
+			echo -en "\n"
+			fifth	
+		;;
+		DW)
+			echo -en "\n"
+			cat david_DW
+			echo -en "\n"
+			fifth
+		;;
+		BS)
+			echo -en "\n"
+			echo -e "\t\t*****Sorry!! We could not find the record of the player that you want to see*****"	
+			echo -en "\n"
+		;;
+		RT)
+			echo -en "\n"
+			echo -e "\t\t*****Sorry!! We could not find the record of the player that you want to see*****"
+			echo -en "\n"	
+		;;
+		*)
+			echo -en "\n"
+			echo -e "\t\t*****Please!! Choose the number only from above*****"
+			echo -en "\n"	
+		;;
+		esac
+	done	
+}
+
+
+# Fifth function
+# Ask the user if he/she wants to play again
+fifth() 
+{
+	read -p "Do you want to play again?:(Y/N) " respn
+	if [[ $respn =~ ^Yes|Y|y|YES|yes$ ]]
+	then
+		echo -e "\t\t----------**********---------********---------**********----------"
+		echo -e "\n"
+		echo -e "\t\t\t*****Let's start again*****"
+		# If the user says yes, then the game starts again asking to enter the country code
+		second
+	
+	# else exit the program
+	elif [[ $respn =~ ^No|N|n|NO|no$ ]]
+	then
+		echo -e "\t\t----------**********Thanks for playing**********----------"
+		exit
+	else
+		echo "Use proper letters /yes/no/?"
+		echo -en "\n"
+		fifth
+	fi
+}
+
+# Calling the functions
+first
